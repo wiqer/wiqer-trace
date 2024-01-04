@@ -1,5 +1,5 @@
 # wiqer-trace
-全链路id
+全链路id 支持web 服务和兼容dubbo 阿里和apache版本
 
 根据自己的项目dubbo使用版本，来排除apache或者alibaba的dubbo的pom依赖
 
@@ -20,8 +20,6 @@ pom坐标
     </exclusions>
 </dependency>
 ```
-
-平台技术中心空间 > 全链路日志接入方案 > image2024-1-3_20-5-12.png
 
 启动类加上注解
 ```
