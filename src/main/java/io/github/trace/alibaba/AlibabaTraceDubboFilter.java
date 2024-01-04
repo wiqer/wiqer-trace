@@ -63,7 +63,6 @@ public class AlibabaTraceDubboFilter implements Filter {
             setMDCandLoaclCache(wiqerUserId,wiqerTrace);
             try {
                 Result invoke = invoker.invoke(invocation);
-
                 try{
                     log.info("provider side : time consuming : {}ms , wiqerOrder : {} ,wiqerTrace :{} ,wiqerUserId : {},thread id :{} method : {} --> req args : {},res : {}"
                             , System.currentTimeMillis() - time
