@@ -1,7 +1,7 @@
 package io.github.trace;
 
 /**
- * ：SpeechLog
+ * ：wiqerLog
  *
  * @author ：李岚峰、lilanfeng、
  * @device name ：user

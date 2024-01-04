@@ -27,9 +27,10 @@ public class ApacheTraceDubboFilter implements Filter {
         String methodName = invocation.getMethodName();
         // 拼接全路径
         String fullPath = serviceName + "." + methodName;
-        String speechUserId = RpcContext.getContext().getAttachment(WiqerLog.WIQER_USER);
-        String speechTrace = RpcContext.getContext().getAttachment(WiqerLog.WIQER_TRACE);
-        String speechOrder = RpcContext.getContext().getAttachment(WiqerLog.WIQER_ORDER);
+        String wiqerUserId = RpcContext.getContext().getAttachment(WiqerLog.WIQER_USER);
+        String wiqerTrace = RpcContext.getContext().getAttachment(WiqerLog.WIQER_TRACE);
+        String wiqerOrder = RpcContext.getContext().getAttachment(WiqerLog.WIQER_ORDER);
+        long time = System.currentTimeMillis();
         URL url = null;
         try{
             url = RpcContext.getContext().getUrl();
@@ -39,14 +40,15 @@ public class ApacheTraceDubboFilter implements Filter {
             RpcContext.getContext().setUrl(invoker.getUrl());
         }
         if (RpcContext.getContext().isConsumerSide()) {
-            speechOrder = StringUtils.isNumeric(speechOrder) ? String.valueOf(Integer.parseInt(speechOrder) + 1) : "1";
-            RpcContext.getContext().setAttachment(WiqerLog.WIQER_ORDER, speechOrder);
+            wiqerOrder = StringUtils.isNumeric(wiqerOrder) ? String.valueOf(Integer.parseInt(wiqerOrder) + 1) : "1";
+            RpcContext.getContext().setAttachment(WiqerLog.WIQER_ORDER, wiqerOrder);
             Result invoke = invoker.invoke(invocation);
             try{
-                log.info("consumer side : speechOrder : {} ,speechTrace :{} ,speechUserId : {},thread id :{} method : {} --> req args : {},res : {}"
-                        , speechOrder
-                        , speechTrace
-                        , speechUserId
+                log.info("consumer side : time consuming : {}ms ,wiqerOrder : {} ,wiqerTrace :{} ,wiqerUserId : {},thread id :{} method : {} --> req args : {},res : {}"
+                        , System.currentTimeMillis() - time
+                        , wiqerOrder
+                        , wiqerTrace
+                        , wiqerUserId
                         , Thread.currentThread().getId()
                         , fullPath
                         , new JsonLogWrapper(invocation.getArguments())
@@ -56,15 +58,16 @@ public class ApacheTraceDubboFilter implements Filter {
             }
             return invoke;
         } else if (RpcContext.getContext().isProviderSide()) {
-            setMDCandLoaclCache(speechUserId,speechTrace);
+            setMDCandLoaclCache(wiqerUserId,wiqerTrace);
             try {
                 Result invoke = invoker.invoke(invocation);
 
                 try{
-                    log.info("provider side : speechOrder : {} ,speechTrace :{} ,speechUserId : {},thread id :{} method : {} --> req args : {},res : {}"
-                            , speechOrder
-                            , speechTrace
-                            , speechUserId
+                    log.info("provider side : time consuming : {}ms , wiqerOrder : {} ,wiqerTrace :{} ,wiqerUserId : {},thread id :{} method : {} --> req args : {},res : {}"
+                            , System.currentTimeMillis() - time
+                            , wiqerOrder
+                            , wiqerTrace
+                            , wiqerUserId
                             , Thread.currentThread().getId()
                             , fullPath
                             , new JsonLogWrapper(invocation.getArguments())
@@ -80,7 +83,7 @@ public class ApacheTraceDubboFilter implements Filter {
         }else {
 
             try{
-                setMDCandLoaclCache(speechUserId,speechTrace);
+                setMDCandLoaclCache(wiqerUserId,wiqerTrace);
                 return invoker.invoke(invocation);
             }finally {
                 clear();
@@ -93,12 +96,12 @@ public class ApacheTraceDubboFilter implements Filter {
         MDC.remove(WiqerLog.WIQER_TRACE);
     }
 
-    private static void setMDCandLoaclCache(String speechUserId, String speechTrace) {
-        if (StringUtils.isNotEmpty(speechTrace)){
-            MDC.put(WiqerLog.WIQER_TRACE, speechTrace);
+    private static void setMDCandLoaclCache(String wiqerUserId, String wiqerTrace) {
+        if (StringUtils.isNotEmpty(wiqerTrace)){
+            MDC.put(WiqerLog.WIQER_TRACE, wiqerTrace);
         }
-        if (StringUtils.isNotEmpty(speechUserId)){
-            MDC.put(WiqerLog.WIQER_USER, speechUserId);
+        if (StringUtils.isNotEmpty(wiqerUserId)){
+            MDC.put(WiqerLog.WIQER_USER, wiqerUserId);
         }
     }
 }
