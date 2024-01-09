@@ -95,11 +95,7 @@ public class WebLogInterceptor implements HandlerInterceptor {
             org.apache.dubbo.rpc.RpcContext.getContext().setAttachment(WiqerLog.WIQER_USER, userId);
         }
 
-        try {
-            log.info("preHandle , order 1, traceId :{} ,url:{},body:{}", traceId, request.getRequestURL(),getBody(request));
-        } catch (IOException e) {
-            log.error("preHandle ",e);
-        }
+        log.info("preHandle , order 1, traceId :{} ,url:{}", traceId, request.getRequestURL());
         return true;
     }
 
@@ -118,35 +114,6 @@ public class WebLogInterceptor implements HandlerInterceptor {
                 org.apache.dubbo.rpc.RpcContext.getContext().remove(WiqerLog.WIQER_TRACE);
             }
         }
-    }
-    private String getBody(HttpServletRequest request) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = null;
-        try {
-            InputStream inputStream = request.getInputStream();
-            if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[128];
-                int bytesRead;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                    stringBuilder.append(charBuffer, 0, bytesRead);
-                }
-            } else {
-                stringBuilder.append("");
-            }
-        } catch (IOException ex) {
-            throw ex;
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException ex) {
-                    throw ex;
-                }
-            }
-        }
-
-        return stringBuilder.toString();
     }
 }
 
